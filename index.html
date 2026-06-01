@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Calculadora de Bolso – Produtor Rural</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --terra: #5C3A1E; --pasto: #2D5A27; --palha: #C8A84B; --ceu: #4A7FA5;
+  --barro: #8B5E3C; --leite: #F5F0E8; --sombra: #1A1208; --verde-claro: #7CB87A;
+  --accent: #E8761A; --bg: #F2ECD8; --card-bg: #FDFAF3; --border: #C4A96A; --zap: #25D366;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg);
+  color: var(--sombra);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 10% 20%, rgba(44,90,39,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 80%, rgba(92,58,30,0.08) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%235C3A1E' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── HEADER ── */
+.app-header { background: var(--terra); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(26,18,8,0.4); }
+.header-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 3px solid var(--palha); }
+.app-logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: var(--palha); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.logo-text { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 900; color: var(--leite); letter-spacing: -0.5px; line-height: 1.1; }
+.logo-sub { font-size: 10px; font-weight: 400; color: var(--palha); letter-spacing: 2px; text-transform: uppercase; display: block; font-family: 'IBM Plex Mono', monospace; }
+.offline-badge { display: flex; align-items: center; gap: 5px; background: var(--pasto); border: 1px solid var(--verde-claro); border-radius: 20px; padding: 4px 10px; font-size: 10px; color: var(--verde-claro); letter-spacing: 1px; text-transform: uppercase; }
+.offline-dot { width: 6px; height: 6px; background: var(--verde-claro); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+/* ── NAV TABS ── */
+.nav-tabs { display: flex; background: #3D2410; overflow-x: auto; scrollbar-width: none; }
+.nav-tabs::-webkit-scrollbar { display: none; }
+.tab-btn { flex: 1; min-width: 68px; padding: 10px 4px; border: none; background: transparent; color: rgba(245,240,232,0.5); font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.3px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 3px; white-space: nowrap; }
+.tab-btn .ti { font-size: 16px; }
+.tab-btn.active { color: var(--palha); border-bottom-color: var(--palha); background: rgba(200,168,75,0.1); }
+.tab-btn:hover:not(.active) { color: var(--leite); background: rgba(255,255,255,0.05); }
+
+/* ── LAYOUT ── */
+.main-content { padding: 20px 16px 100px; max-width: 600px; margin: 0 auto; }
+.module { display: none; animation: fadeIn 0.3s ease; }
+.module.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── MODULE HEADER ── */
+.module-header { margin-bottom: 20px; padding: 20px; background: var(--card-bg); border: 2px solid var(--border); border-radius: 12px; position: relative; overflow: hidden; }
+.module-header::before { content:''; position:absolute; left:0;top:0;bottom:0; width:5px; background:var(--module-color,var(--pasto)); }
+.module-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: var(--terra); line-height: 1.2; }
+.module-desc { font-size: 11px; color: var(--barro); margin-top: 4px; letter-spacing: 0.5px; line-height: 1.5; }
+
+/* ── CARDS ── */
+.card { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(92,58,30,0.08); }
+.card-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--terra); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card-title::after { content:''; flex:1; height:1px; background:var(--border); opacity:0.5; }
+
+/* ── FORMS ── */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 10px; font-weight: 600; color: var(--barro); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.form-input { width: 100%; padding: 10px 14px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: var(--sombra); transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
+.form-input:focus { outline: none; border-color: var(--pasto); box-shadow: 0 0 0 3px rgba(45,90,39,0.15); background: white; }
+.form-select { width: 100%; padding: 10px 14px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--sombra); cursor: pointer; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235C3A1E' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.form-select:focus { outline: none; border-color: var(--pasto); box-shadow: 0 0 0 3px rgba(45,90,39,0.15); }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── BUTTONS ── */
+.btn-calc { width: 100%; padding: 14px; background: var(--pasto); color: var(--leite); border: none; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
+.btn-calc:hover { background: #1F3E1C; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(45,90,39,0.4); }
+.btn-calc:active { transform: translateY(0); }
+.btn-secondary { background: transparent; color: var(--barro); border: 1.5px solid var(--border); font-size: 11px; padding: 8px 14px; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s; }
+.btn-secondary:hover { background: var(--bg); border-color: var(--barro); color: var(--terra); }
+.btn-zap { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; margin-top: 12px; background: var(--zap); color: white; border: none; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+.btn-zap:hover { background: #1da851; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(37,211,102,0.4); }
+
+/* ── RESULTS ── */
+.result-box { display: none; margin-top: 16px; background: linear-gradient(135deg, var(--sombra) 0%, #2C1810 100%); border: 2px solid var(--palha); border-radius: 12px; padding: 18px; color: var(--leite); animation: resultSlide 0.3s ease; }
+.result-box.show { display: block; }
+@keyframes resultSlide { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
+.result-title { font-family: 'Playfair Display', serif; font-size: 13px; color: var(--palha); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.result-title::before { content:'▸'; color:var(--accent); }
+.result-grid { display: grid; gap: 10px; }
+.result-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid var(--palha); }
+.result-item.highlight { background: rgba(200,168,75,0.15); border-left-color: var(--accent); }
+.result-item.danger { background: rgba(220,50,30,0.1); border-left-color: #E84040; }
+.result-item.success { background: rgba(45,90,39,0.3); border-left-color: var(--verde-claro); }
+.result-label { font-size: 11px; color: rgba(245,240,232,0.6); letter-spacing: 0.5px; }
+.result-value { font-size: 16px; font-weight: 600; color: var(--leite); text-align: right; }
+.result-value small { font-size: 11px; color: var(--palha); font-weight: 400; margin-left: 4px; }
+.result-note { margin-top: 12px; padding: 10px; background: rgba(200,168,75,0.1); border-radius: 8px; font-size: 11px; color: var(--palha); line-height: 1.6; border: 1px solid rgba(200,168,75,0.3); }
+
+/* ── MISC ── */
+.formula-chip { display: inline-flex; align-items: center; gap: 4px; background: rgba(200,168,75,0.15); border: 1px solid rgba(200,168,75,0.4); border-radius: 20px; padding: 3px 10px; font-size: 10px; color: var(--barro); margin-bottom: 12px; font-style: italic; }
+.section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 20px 0; }
+.tip-box { background: rgba(45,90,39,0.08); border: 1px solid rgba(45,90,39,0.2); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--pasto); line-height: 1.6; margin-top: 12px; }
+.tip-box strong { color: var(--terra); }
+.margin-meter { margin-top: 14px; text-align: center; }
+.meter-value { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 900; line-height: 1; }
+.meter-value.positive { color: var(--verde-claro); }
+.meter-value.negative { color: #E84040; }
+.meter-value.neutral { color: var(--palha); }
+.meter-label { font-size: 11px; color: rgba(245,240,232,0.5); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+/* ── CARCAÇA LIVE ── */
+.carcaca-meter { display: flex; flex-direction: column; align-items: center; padding: 20px; background: linear-gradient(135deg, #1A1208, #2C1810); border-radius: 12px; margin-top: 14px; border: 2px solid var(--palha); }
+.carcaca-arrobas { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 900; color: var(--palha); line-height: 1; }
+.carcaca-label { font-size: 11px; color: rgba(245,240,232,0.5); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+.carcaca-range { display: flex; gap: 8px; margin-top: 14px; width: 100%; }
+.carcaca-range-item { flex: 1; padding: 10px 6px; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: center; border: 1px solid rgba(200,168,75,0.2); }
+.carcaca-range-val { font-size: 14px; font-weight: 600; color: var(--verde-claro); }
+.carcaca-range-lbl { font-size: 9px; color: rgba(245,240,232,0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+
+/* ── CONVERSOR ── */
+.conv-big-input { width: 100%; padding: 16px 14px; background: white; border: 2px solid var(--palha); border-radius: 12px; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--terra); text-align: center; margin-bottom: 10px; }
+.conv-big-input:focus { outline: none; border-color: var(--pasto); box-shadow: 0 0 0 4px rgba(45,90,39,0.12); }
+.conv-origin-label { text-align: center; font-size: 11px; color: var(--barro); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; }
+.conv-results { display: grid; gap: 8px; }
+.conv-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card-bg); cursor: pointer; transition: all 0.15s; }
+.conv-item:hover { border-color: var(--palha); background: white; transform: translateX(2px); }
+.conv-item.origin { background: var(--terra); border-color: var(--terra); color: var(--leite); cursor: default; }
+.conv-item.origin:hover { transform: none; }
+.conv-name { font-size: 12px; font-weight: 600; }
+.conv-abbr { font-size: 10px; opacity: 0.6; margin-top: 2px; }
+.conv-value { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--pasto); text-align: right; }
+.conv-item.origin .conv-value { color: var(--palha); }
+.conv-m2 { font-size: 10px; color: var(--barro); text-align: right; margin-top: 1px; }
+.conv-item.origin .conv-m2 { color: rgba(245,240,232,0.4); }
+.conv-tap-hint { font-size: 10px; color: var(--barro); text-align: center; margin-top: 8px; opacity: 0.7; font-style: italic; }
+
+/* ── PLUVIÔMETRO ── */
+.pluv-total-box { background: linear-gradient(135deg, var(--ceu), #2A5A82); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.pluv-total-val { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 900; color: white; line-height: 1; }
+.pluv-total-info { font-size: 9px; color: rgba(255,255,255,0.7); letter-spacing: 1px; text-transform: uppercase; }
+.pluv-total-sub { font-size: 11px; color: rgba(255,255,255,0.9); margin-top: 3px; }
+.pluv-add-form { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 14px; }
+.pluv-add-form .form-group { flex: 1; margin-bottom: 0; }
+.btn-pluv { padding: 10px 14px; background: var(--ceu); color: white; border: none; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; align-self: flex-end; }
+.btn-pluv:hover { background: #2A5A82; }
+.pluv-chart-wrap { overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; }
+.pluv-chart { display: flex; align-items: flex-end; gap: 4px; height: 80px; min-width: max-content; padding: 0 2px; }
+.pluv-col { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.pluv-col-bar { width: 26px; background: linear-gradient(180deg, #7BB8D4, var(--ceu)); border-radius: 4px 4px 0 0; min-height: 3px; transition: height 0.4s; }
+.pluv-col-lbl { font-size: 8px; color: var(--barro); white-space: nowrap; }
+.pluv-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+.pluv-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.pluv-bar-wrap { flex: 1; background: rgba(74,127,165,0.15); border-radius: 4px; height: 6px; overflow: hidden; }
+.pluv-bar { height: 100%; background: linear-gradient(90deg, var(--ceu), #7BB8D4); border-radius: 4px; }
+.pluv-date { font-size: 11px; color: var(--barro); min-width: 44px; }
+.pluv-mm-val { font-size: 13px; font-weight: 600; color: var(--ceu); min-width: 54px; text-align: right; }
+.pluv-del { background: none; border: none; color: #E84040; cursor: pointer; font-size: 13px; padding: 0 2px; opacity: 0.5; }
+.pluv-del:hover { opacity: 1; }
+.pluv-empty { text-align: center; padding: 24px; color: var(--barro); font-size: 12px; opacity: 0.6; }
+.pluv-section-title { font-size: 10px; color: var(--barro); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+
+/* ── HISTORY ── */
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.history-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--terra); }
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.history-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+.history-item-title { font-size: 12px; font-weight: 600; color: var(--terra); }
+.history-item-date { font-size: 10px; color: var(--barro); margin-top: 2px; }
+.history-item-value { font-size: 13px; font-weight: 600; color: var(--pasto); text-align: right; }
+.empty-history { text-align: center; padding: 28px; color: var(--barro); font-size: 12px; opacity: 0.6; }
+
+/* ── REF TABLE ── */
+.ref-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.ref-table th { padding: 8px; background: var(--terra); color: var(--leite); text-align: left; }
+.ref-table th:last-child { text-align: right; border-radius: 0 6px 0 0; }
+.ref-table th:first-child { border-radius: 6px 0 0 0; }
+.ref-table td { padding: 7px 8px; border-bottom: 1px solid rgba(196,169,106,0.2); }
+.ref-table td:last-child { text-align: right; font-weight: 600; }
+.ref-table tr:nth-child(even) { background: rgba(200,168,75,0.05); }
+
+@media (max-width: 400px) { .header-inner{padding:10px 14px} .logo-text{font-size:16px} .main-content{padding:16px 12px 80px} }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="app-logo">
+      <div class="logo-icon">🌾</div>
+      <div class="logo-text">Calculadora de Bolso<span class="logo-sub">Produtor Rural</span></div>
+    </div>
+    <div class="offline-badge"><div class="offline-dot"></div>Offline</div>
+  </div>
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="showTab('pastagem',this)"><span class="ti">🐄</span>Pecuária</button>
+    <button class="tab-btn" onclick="showTab('insumos',this)"><span class="ti">🌱</span>Insumos</button>
+    <button class="tab-btn" onclick="showTab('preco',this)"><span class="ti">💰</span>Preços</button>
+    <button class="tab-btn" onclick="showTab('medidas',this)"><span class="ti">📐</span>Medidas</button>
+    <button class="tab-btn" onclick="showTab('historico',this)"><span class="ti">📋</span>Histórico</button>
+  </nav>
+</header>
+
+<main class="main-content">
+
+<!-- ══ PECUÁRIA ══ -->
+<section class="module active" id="mod-pastagem">
+  <div class="module-header" style="--module-color:#2D5A27">
+    <div class="module-title">🐄 Pastagem &amp; Pecuária</div>
+    <div class="module-desc">Ração, silagem, rotação de pasto e rendimento de carcaça</div>
+  </div>
+
+  <!-- RAÇÃO -->
+  <div class="card">
+    <div class="card-title">🥩 Cálculo de Ração</div>
+    <div class="formula-chip">📐 2–3% do peso vivo/dia (matéria seca)</div>
+    <div class="form-group"><label class="form-label">Qtd. de Cabeças</label><input type="number" class="form-input" id="racao_cabecas" placeholder="Ex: 50" min="1" inputmode="numeric"></div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Peso Médio (kg)</label><input type="number" class="form-input" id="racao_peso" placeholder="Ex: 450" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">% Consumo/dia</label><input type="number" class="form-input" id="racao_pct" value="2.5" min="0.1" max="10" step="0.1" inputmode="decimal"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Sistema</label>
+      <select class="form-select" id="racao_tipo">
+        <option value="pasto">Pasto (100% volumoso)</option>
+        <option value="semi">Semiconfinamento (70/30)</option>
+        <option value="confinamento">Confinamento</option>
+      </select>
+    </div>
+    <button class="btn-calc" onclick="calcularRacao()">▶ CALCULAR RAÇÃO</button>
+    <div class="result-box" id="result-racao">
+      <div class="result-title">Resultado — Ração Diária</div>
+      <div class="result-grid" id="racao-grid"></div>
+      <div class="result-note" id="racao-note"></div>
+      <button class="btn-zap" onclick="enviarZap('zap-racao')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ENVIAR POR WHATSAPP
+      </button>
+      <span id="zap-racao" style="display:none"></span>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- SILAGEM -->
+  <div class="card">
+    <div class="card-title">🌽 Estimativa de Silagem</div>
+    <div class="formula-chip">📐 ~8 kg silagem = 1 kg matéria seca</div>
+    <div class="form-group"><label class="form-label">Qtd. de Cabeças</label><input type="number" class="form-input" id="silagem_cabecas" placeholder="Ex: 50" inputmode="numeric"></div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">kg silagem/cab/dia</label><input type="number" class="form-input" id="silagem_kg" value="25" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Período (dias)</label><input type="number" class="form-input" id="silagem_dias" placeholder="Ex: 90" inputmode="numeric"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Tipo de Silagem</label>
+      <select class="form-select" id="silagem_tipo">
+        <option value="milho">Milho (~30% MS)</option>
+        <option value="sorgo">Sorgo (~28% MS)</option>
+        <option value="capim">Capim (~22% MS)</option>
+      </select>
+    </div>
+    <button class="btn-calc" onclick="calcularSilagem()">▶ CALCULAR SILAGEM</button>
+    <div class="result-box" id="result-silagem">
+      <div class="result-title">Resultado — Silagem</div>
+      <div class="result-grid" id="silagem-grid"></div>
+      <div class="result-note" id="silagem-note"></div>
+      <button class="btn-zap" onclick="enviarZap('zap-silagem')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ENVIAR POR WHATSAPP
+      </button>
+      <span id="zap-silagem" style="display:none"></span>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ROTAÇÃO -->
+  <div class="card">
+    <div class="card-title">🔄 Rotação de Pasto</div>
+    <div class="formula-chip">📐 UA = cabeças × (peso ÷ 450)</div>
+    <div class="form-group"><label class="form-label">Área Total (ha)</label><input type="number" class="form-input" id="rot_area" placeholder="Ex: 100" inputmode="decimal"></div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Cabeças</label><input type="number" class="form-input" id="rot_cabecas" placeholder="Ex: 80" inputmode="numeric"></div>
+      <div class="form-group"><label class="form-label">Peso Médio (kg)</label><input type="number" class="form-input" id="rot_peso" placeholder="Ex: 400" inputmode="decimal"></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Nº de Piquetes</label><input type="number" class="form-input" id="rot_piquetes" value="8" min="2" inputmode="numeric"></div>
+      <div class="form-group"><label class="form-label">Lotação (UA/ha)</label><input type="number" class="form-input" id="rot_lotacao" value="3" min="0.1" step="0.1" inputmode="decimal"></div>
+    </div>
+    <button class="btn-calc" onclick="calcularRotacao()">▶ CALCULAR ROTAÇÃO</button>
+    <div class="result-box" id="result-rotacao">
+      <div class="result-title">Resultado — Rotação</div>
+      <div class="result-grid" id="rotacao-grid"></div>
+      <div class="result-note" id="rotacao-note"></div>
+      <button class="btn-zap" onclick="enviarZap('zap-rotacao')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ENVIAR POR WHATSAPP
+      </button>
+      <span id="zap-rotacao" style="display:none"></span>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- RENDIMENTO DE CARCAÇA -->
+  <div class="card">
+    <div class="card-title">🔪 Rendimento de Carcaça</div>
+    <div class="formula-chip">📐 1 arroba = 15 kg · rendimento padrão 52–54%</div>
+    <div class="form-group"><label class="form-label">Peso Vivo do Animal (kg)</label>
+      <input type="number" class="form-input" id="carc_peso_vivo" placeholder="Ex: 520" min="50" inputmode="decimal" oninput="calcularCarcacaAuto()">
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Rendimento (%)</label>
+        <select class="form-select" id="carc_rend" onchange="calcularCarcacaAuto()">
+          <option value="50">50% — fraco acabamento</option>
+          <option value="52" selected>52% — padrão</option>
+          <option value="54">54% — bom acabamento</option>
+          <option value="56">56% — excelente</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">% Personalizado</label>
+        <input type="number" class="form-input" id="carc_rend_custom" placeholder="Ex: 53" min="30" max="70" step="0.5" inputmode="decimal" oninput="calcularCarcacaAuto()">
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Preço da Arroba (R$/@) — opcional</label>
+      <input type="number" class="form-input" id="carc_preco_at" placeholder="Ex: 310" min="0" step="0.01" inputmode="decimal" oninput="calcularCarcacaAuto()">
+    </div>
+
+    <div id="carc-live" style="display:none">
+      <div class="carcaca-meter">
+        <div class="carcaca-arrobas" id="carc-at-val">–</div>
+        <div class="carcaca-label">arrobas (@) estimadas</div>
+        <div class="carcaca-range">
+          <div class="carcaca-range-item">
+            <div class="carcaca-range-val" id="carc-kg-carc">–</div>
+            <div class="carcaca-range-lbl">kg carcaça</div>
+          </div>
+          <div class="carcaca-range-item">
+            <div class="carcaca-range-val" id="carc-receita">–</div>
+            <div class="carcaca-range-lbl">receita estimada</div>
+          </div>
+          <div class="carcaca-range-item">
+            <div class="carcaca-range-val" id="carc-rend-display">–</div>
+            <div class="carcaca-range-lbl">rendimento</div>
+          </div>
+        </div>
+      </div>
+      <div class="result-note" id="carc-note" style="margin-top:10px"></div>
+      <button class="btn-zap" onclick="enviarZap('zap-carcaca')" style="margin-top:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ENVIAR POR WHATSAPP
+      </button>
+      <span id="zap-carcaca" style="display:none"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ INSUMOS ══ -->
+<section class="module" id="mod-insumos">
+  <div class="module-header" style="--module-color:#4A7FA5">
+    <div class="module-title">🌱 Cálculo de Insumos</div>
+    <div class="module-desc">Adubação e defensivos com precisão — sem desperdício de dinheiro</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🧪 Adubação por Hectare</div>
+    <div class="formula-chip">📐 Total = dose recomendada × área</div>
+    <div class="form-group"><label class="form-label">Área (hectares)</label><input type="number" class="form-input" id="adub_area" placeholder="Ex: 50" inputmode="decimal"></div>
+    <div class="form-group"><label class="form-label">Tipo de Adubo</label>
+      <select class="form-select" id="adub_tipo" onchange="atualizarDoseAdubo()">
+        <option value="ureia" data-dose="200">Ureia 45% N (200 kg/ha)</option>
+        <option value="npk" data-dose="300">NPK 04-14-08 (300 kg/ha)</option>
+        <option value="superfosfato" data-dose="150">Superfosfato Simples (150 kg/ha)</option>
+        <option value="kcl" data-dose="100">KCl – Cloreto de Potássio (100 kg/ha)</option>
+        <option value="calcario" data-dose="2000">Calcário Dolomítico (2.000 kg/ha)</option>
+        <option value="custom">Dose Personalizada</option>
+      </select>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Dose (kg/ha)</label><input type="number" class="form-input" id="adub_dose" value="200" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Preço do Saco (R$)</label><input type="number" class="form-input" id="adub_preco_saco" placeholder="Ex: 85" inputmode="decimal"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Peso do Saco (kg)</label><input type="number" class="form-input" id="adub_peso_saco" value="50" inputmode="decimal"></div>
+    <button class="btn-calc" onclick="calcularAdubacao()">▶ CALCULAR ADUBAÇÃO</button>
+    <div class="result-box" id="result-adubacao">
+      <div class="result-title">Resultado — Adubação</div>
+      <div class="result-grid" id="adubacao-grid"></div>
+      <div class="result-note" id="adubacao-note"></div>
+      <button class="btn-zap" onclick="enviarZap('zap-adubacao')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ENVIAR POR WHATSAPP
+      </button>
+      <span id="zap-adubacao" style="display:none"></span>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="card">
+    <div class="card-title">🛡️ Defensivos Agrícolas</div>
+    <div class="formula-chip">📐 Produto total = dose × área</div>
+    <div class="form-group"><label class="form-label">Área (hectares)</label><input type="number" class="form-input" id="def_area" placeholder="Ex: 30" inputmode="decimal"></div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Dose por hectare</label><input type="number" class="form-input" id="def_dose" placeholder="Ex: 500" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Unidade</label>
+        <select class="form-select" id="def_unidade">
+          <option value="ml">ml/ha</option><option value="g">g/ha</option>
+          <option value="L">L/ha</option><option value="kg">kg/ha</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Calda (L/ha)</label><input type="number" class="form-input" id="def_calda" value="150" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Preço (R$/L ou kg)</label><input type="number" class="form-input" id="def_preco" placeholder="Ex: 45" inputmode="decimal"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Equipamento</label>
+      <select class="form-select" id="def_equip">
+        <option value="costal">Costal (20L)</option>
+        <option value="tratorizado">Tratorizado (600L)</option>
+        <option value="drone">Drone (100L)</option>
+        <option value="aviao">Avião (3.000L)</option>
+      </select>
+    </div>
+    <button class="btn-calc" onclick="calcularDefensivos()">▶ CALCULAR DEFENSIVOS</button>
+    <div class="result-box" id="result-defensivos">
+      <div class="result-title">Resultado — Defensivos</div>
+      <div class="result-grid" id="defensivos-grid"></div>
+      <div class="result-note" id="defensivos-note"></div>
+      <button class="btn-zap" onclick="enviarZap('zap-defensivos')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ENVIAR POR WHATSAPP
+      </button>
+      <span id="zap-defensivos" style="display:none"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PREÇOS ══ -->
+<section class="module" id="mod-preco">
+  <div class="module-header" style="--module-color:#C8A84B">
+    <div class="module-title">💰 Simulador de Preços</div>
+    <div class="module-desc">Custo de produção × preço de venda = margem de lucro exata</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🌾 Dados da Produção</div>
+    <div class="form-group"><label class="form-label">Produto / Cultura</label>
+      <select class="form-select" id="prod_tipo" onchange="atualizarUnidadeProd()">
+        <option value="soja" data-unidade="sc 60kg">Soja</option>
+        <option value="milho" data-unidade="sc 60kg">Milho</option>
+        <option value="feijao" data-unidade="sc 60kg">Feijão</option>
+        <option value="trigo" data-unidade="sc 60kg">Trigo</option>
+        <option value="algodao" data-unidade="@ 15kg">Algodão</option>
+        <option value="gado" data-unidade="arroba">Gado (arroba)</option>
+        <option value="leite" data-unidade="litro">Leite</option>
+        <option value="frango" data-unidade="kg vivo">Frango</option>
+        <option value="cafe" data-unidade="sc 60kg">Café</option>
+        <option value="cana" data-unidade="tonelada">Cana-de-Açúcar</option>
+        <option value="custom">Outro</option>
+      </select>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Área (ha)</label><input type="number" class="form-input" id="prod_area" placeholder="Ex: 100" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label" id="prod_prod_label">Produtividade/ha</label><input type="number" class="form-input" id="prod_produtividade" placeholder="Ex: 60" inputmode="decimal"></div>
+    </div>
+    <div class="form-group"><label class="form-label" id="prod_preco_label">Preço de Venda (R$/unid.)</label><input type="number" class="form-input" id="prod_preco_venda" placeholder="Ex: 130.00" step="0.01" inputmode="decimal"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 Custos de Produção (R$/ha)</div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Sementes</label><input type="number" class="form-input" id="custo_sementes" placeholder="Ex: 250" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Fertilizantes</label><input type="number" class="form-input" id="custo_fertilizantes" placeholder="Ex: 800" inputmode="decimal"></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Defensivos</label><input type="number" class="form-input" id="custo_defensivos_p" placeholder="Ex: 500" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Mão de Obra</label><input type="number" class="form-input" id="custo_mao_obra" placeholder="Ex: 200" inputmode="decimal"></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Máquinas</label><input type="number" class="form-input" id="custo_maquinas" placeholder="Ex: 350" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Arrendamento</label><input type="number" class="form-input" id="custo_arrendamento" placeholder="Ex: 400" inputmode="decimal"></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Logística/Frete</label><input type="number" class="form-input" id="custo_frete" placeholder="Ex: 100" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Outros</label><input type="number" class="form-input" id="custo_outros" placeholder="Ex: 150" inputmode="decimal"></div>
+    </div>
+    <button class="btn-calc" onclick="calcularPreco()">▶ SIMULAR MARGEM DE LUCRO</button>
+    <div class="result-box" id="result-preco">
+      <div class="result-title">Resultado — Análise Financeira</div>
+      <div class="result-grid" id="preco-grid"></div>
+      <div class="margin-meter" id="margin-meter"></div>
+      <div class="result-note" id="preco-note"></div>
+      <button class="btn-zap" onclick="enviarZap('zap-preco')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ENVIAR POR WHATSAPP
+      </button>
+      <span id="zap-preco" style="display:none"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MEDIDAS ══ -->
+<section class="module" id="mod-medidas">
+  <div class="module-header" style="--module-color:#8B5E3C">
+    <div class="module-title">📐 Conversor de Medidas</div>
+    <div class="module-desc">Hectares, Alqueires, Tarefas — converta entre todas as unidades regionais do Brasil</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🗺️ Conversor de Terra</div>
+    <div class="form-group"><label class="form-label">Unidade de Origem</label>
+      <select class="form-select" id="conv_origem" onchange="converterMedidas()">
+        <option value="ha">Hectare (ha) — INCRA / Nacional</option>
+        <option value="m2">Metro Quadrado (m²)</option>
+        <option value="alq_sp">Alqueire Paulista — SP / PR / RS</option>
+        <option value="alq_mg">Alqueire Mineiro / Goiano — MG / GO / MT</option>
+        <option value="tarefa">Tarefa — Nordeste (BA / SE / AL)</option>
+        <option value="acre">Acre — Amazônia (AM / PA / AC)</option>
+        <option value="braca">Braça Quadrada — uso antigo</option>
+      </select>
+    </div>
+    <input type="number" class="conv-big-input" id="conv_valor" placeholder="0" min="0" step="any" inputmode="decimal" oninput="converterMedidas()">
+    <div class="conv-origin-label" id="conv-origin-label">Digite o valor acima ↑</div>
+    <div class="conv-results" id="conv-results">
+      <div style="text-align:center;padding:20px;color:var(--barro);font-size:12px;opacity:0.7">🗺️ Digite um valor para converter entre todas as unidades</div>
+    </div>
+    <div class="conv-tap-hint" id="conv-tap-hint" style="display:none">💡 Toque em qualquer resultado para usá-lo como nova origem</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📏 Tabela de Referência</div>
+    <div style="overflow-x:auto">
+      <table class="ref-table">
+        <thead><tr><th>Unidade</th><th style="text-align:right">m²</th><th style="text-align:right">Equivale a</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1 Hectare</strong></td><td style="text-align:right">10.000</td><td>1,00 ha</td></tr>
+          <tr><td><strong>1 Alq. Paulista</strong></td><td style="text-align:right">24.200</td><td>2,42 ha</td></tr>
+          <tr><td><strong>1 Alq. Mineiro</strong></td><td style="text-align:right">48.400</td><td>4,84 ha</td></tr>
+          <tr><td><strong>1 Tarefa (NE)</strong></td><td style="text-align:right">4.356</td><td>0,436 ha</td></tr>
+          <tr><td><strong>1 Acre</strong></td><td style="text-align:right">4.047</td><td>0,405 ha</td></tr>
+          <tr><td><strong>1 Braça²</strong></td><td style="text-align:right">4,84</td><td>0,000484 ha</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box" style="margin-top:12px">
+      <strong>🗺️ Sabia disso?</strong> O Alqueire Mineiro é exatamente o dobro do Paulista. No Nordeste, 1 Tarefa = 30×30 braças = 4.356 m². Para documentos do Incra, sempre use Hectares.
+    </div>
+  </div>
+</section>
+
+<!-- ══ HISTÓRICO ══ -->
+<section class="module" id="mod-historico">
+  <div class="module-header" style="--module-color:#4A7FA5">
+    <div class="module-title">📋 Histórico &amp; Chuvas</div>
+    <div class="module-desc">Pluviômetro digital e registro de todos os seus cálculos</div>
+  </div>
+
+  <!-- PLUVIÔMETRO -->
+  <div class="card">
+    <div class="card-title">🌧️ Pluviômetro Digital</div>
+
+    <div class="pluv-total-box">
+      <div style="font-size:32px">🌧️</div>
+      <div>
+        <div class="pluv-total-val" id="pluv-total-val">0,0 mm</div>
+        <div class="pluv-total-info">TOTAL REGISTRADO</div>
+        <div class="pluv-total-sub" id="pluv-total-sub">Nenhum registro ainda</div>
+      </div>
+    </div>
+
+    <div class="pluv-add-form">
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input type="date" class="form-input" id="pluv_data" style="font-size:13px">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Milímetros (mm)</label>
+        <input type="number" class="form-input" id="pluv_mm" placeholder="Ex: 32,5" min="0" step="0.1" inputmode="decimal">
+      </div>
+      <button class="btn-pluv" onclick="registrarChuva()">+ Registrar</button>
+    </div>
+
+    <div id="pluv-chart-area" style="display:none">
+      <div class="pluv-section-title">Últimos registros</div>
+      <div class="pluv-chart-wrap">
+        <div class="pluv-chart" id="pluv-chart"></div>
+      </div>
+    </div>
+
+    <div class="pluv-list" id="pluv-list">
+      <div class="pluv-empty">☁️ Nenhuma chuva registrada ainda.<br>Comece anotando hoje!</div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="card">
+    <div class="history-header">
+      <div class="history-title">🗂️ Cálculos Salvos</div>
+      <button class="btn-secondary" onclick="limparHistorico()">🗑 Limpar</button>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="empty-history"><div style="font-size:32px;margin-bottom:8px">📭</div>Nenhum cálculo salvo ainda.</div>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <strong>💡 100% Offline:</strong> Chuvas e cálculos ficam salvos no seu celular mesmo sem internet. Os dados não somem nunca, mesmo fechando o app!
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════
+const fmt  = (n, d=0) => (+n).toLocaleString('pt-BR', {minimumFractionDigits:d, maximumFractionDigits:d});
+const fmtR = n => 'R$ ' + (+n).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const getVal = id => parseFloat(document.getElementById(id).value) || 0;
+
+function makeGrid(items) {
+  return items.map(i => `
+    <div class="result-item ${i.cls||''}">
+      <span class="result-label">${i.label}</span>
+      <span class="result-value">${i.value}<small>${i.unit||''}</small></span>
+    </div>`).join('');
+}
+
+function validate(...ids) {
+  for (const id of ids) {
+    const v = parseFloat(document.getElementById(id).value);
+    if (!v || v <= 0) {
+      const el = document.getElementById(id);
+      el.focus(); el.style.borderColor = '#E84040';
+      setTimeout(() => el.style.borderColor = '', 1500);
+      return false;
+    }
+  }
+  return true;
+}
+
+function showResult(id) {
+  const box = document.getElementById(id);
+  box.classList.add('show');
+  setTimeout(() => box.scrollIntoView({behavior:'smooth', block:'nearest'}), 60);
+}
+
+// ═══════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════
+function showTab(name, btn) {
+  document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mod-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else {
+    const btns = document.querySelectorAll('.tab-btn');
+    const names = ['pastagem','insumos','preco','medidas','historico'];
+    btns[names.indexOf(name)]?.classList.add('active');
+  }
+  if (name === 'historico') { renderHistory(); renderPluv(); }
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════
+//  WHATSAPP
+// ═══════════════════════════════════════
+function enviarZap(spanId) {
+  const el = document.getElementById(spanId);
+  if (!el || !el.dataset.msg) { alert('Faça o cálculo primeiro!'); return; }
+  window.open('https://wa.me/?text=' + encodeURIComponent(el.dataset.msg), '_blank');
+}
+function setZap(spanId, msg) {
+  const el = document.getElementById(spanId);
+  if (el) el.dataset.msg = msg;
+}
+
+// ═══════════════════════════════════════
+//  HISTÓRICO
+// ═══════════════════════════════════════
+let calcHistory = [];
+try { calcHistory = JSON.parse(localStorage.getItem('calc_history') || '[]'); } catch(e) {}
+
+function saveHistory(tipo, titulo, valor) {
+  calcHistory.unshift({
+    id: Date.now(), tipo, titulo, valor,
+    data: new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})
+  });
+  if (calcHistory.length > 50) calcHistory.pop();
+  try { localStorage.setItem('calc_history', JSON.stringify(calcHistory)); } catch(e) {}
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const icons = {racao:'🥩',silagem:'🌽',rotacao:'🔄',carcaca:'🔪',adubacao:'🧪',defensivos:'🛡️',preco:'💰'};
+  if (!calcHistory.length) {
+    list.innerHTML = '<div class="empty-history"><div style="font-size:32px;margin-bottom:8px">📭</div>Nenhum cálculo salvo ainda.</div>';
+    return;
+  }
+  list.innerHTML = calcHistory.map(e => `
+    <div class="history-item">
+      <div>
+        <div class="history-item-title">${icons[e.tipo]||'📋'} ${e.titulo}</div>
+        <div class="history-item-date">${e.data}</div>
+      </div>
+      <div class="history-item-value">${e.valor}</div>
+    </div>`).join('');
+}
+
+function limparHistorico() {
+  if (confirm('Apagar todo o histórico de cálculos?')) {
+    calcHistory = [];
+    try { localStorage.setItem('calc_history','[]'); } catch(e) {}
+    renderHistory();
+  }
+}
+
+// ═══════════════════════════════════════
+//  PLUVIÔMETRO
+// ═══════════════════════════════════════
+let pluvData = [];
+try { pluvData = JSON.parse(localStorage.getItem('pluv_data') || '[]'); } catch(e) {}
+
+function registrarChuva() {
+  const data = document.getElementById('pluv_data').value;
+  const mm   = parseFloat(document.getElementById('pluv_mm').value);
+  if (!data || isNaN(mm) || mm < 0) { alert('Preencha a data e os milímetros corretamente.'); return; }
+  pluvData.unshift({ id: Date.now(), data, mm });
+  pluvData.sort((a,b) => b.data.localeCompare(a.data));
+  if (pluvData.length > 365) pluvData.pop();
+  try { localStorage.setItem('pluv_data', JSON.stringify(pluvData)); } catch(e) {}
+  document.getElementById('pluv_mm').value = '';
+  renderPluv();
+}
+
+function deletarChuva(id) {
+  pluvData = pluvData.filter(p => p.id !== id);
+  try { localStorage.setItem('pluv_data', JSON.stringify(pluvData)); } catch(e) {}
+  renderPluv();
+}
+
+function renderPluv() {
+  const list      = document.getElementById('pluv-list');
+  const totalEl   = document.getElementById('pluv-total-val');
+  const subEl     = document.getElementById('pluv-total-sub');
+  const chartArea = document.getElementById('pluv-chart-area');
+
+  if (!pluvData.length) {
+    list.innerHTML = '<div class="pluv-empty">☁️ Nenhuma chuva registrada ainda.<br>Comece anotando hoje!</div>';
+    totalEl.textContent = '0,0 mm';
+    subEl.textContent   = 'Nenhum registro ainda';
+    chartArea.style.display = 'none';
+    return;
+  }
+
+  const total = pluvData.reduce((s,p) => s + p.mm, 0);
+  totalEl.textContent = fmt(total,1) + ' mm';
+  subEl.textContent   = `${pluvData.length} registro${pluvData.length>1?'s':''} · média ${fmt(total/pluvData.length,1)} mm/evento`;
+
+  const maxMM = Math.max(...pluvData.map(p => p.mm));
+
+  // List
+  list.innerHTML = pluvData.map(p => {
+    const pct = maxMM > 0 ? (p.mm / maxMM) * 100 : 0;
+    const [a,m,d] = p.data.split('-');
+    return `<div class="pluv-item">
+      <span class="pluv-date">${d}/${m}</span>
+      <div class="pluv-bar-wrap"><div class="pluv-bar" style="width:${pct}%"></div></div>
+      <span class="pluv-mm-val">${fmt(p.mm,1)} mm</span>
+      <button class="pluv-del" onclick="deletarChuva(${p.id})" title="Remover">✕</button>
+    </div>`;
+  }).join('');
+
+  // Chart (last 30)
+  chartArea.style.display = 'block';
+  const recent = pluvData.slice(0,30).reverse();
+  const maxH = 68;
+  document.getElementById('pluv-chart').innerHTML = recent.map(p => {
+    const h = maxMM > 0 ? Math.max(3, (p.mm / maxMM) * maxH) : 3;
+    const [,m,d] = p.data.split('-');
+    return `<div class="pluv-col">
+      <div class="pluv-col-bar" style="height:${h}px" title="${p.data}: ${p.mm}mm"></div>
+      <div class="pluv-col-lbl">${d}/${m}</div>
+    </div>`;
+  }).join('');
+}
+
+// Set default date
+document.getElementById('pluv_data').value = new Date().toISOString().split('T')[0];
+
+// ═══════════════════════════════════════
+//  RAÇÃO
+// ═══════════════════════════════════════
+function calcularRacao() {
+  if (!validate('racao_cabecas','racao_peso')) return;
+  const cabecas = getVal('racao_cabecas'), peso = getVal('racao_peso'), pct = getVal('racao_pct') || 2.5;
+  const tipo = document.getElementById('racao_tipo').value;
+  const msDia = peso * pct / 100;
+  const msTotalDia = msDia * cabecas;
+  const [vd,cd] = tipo==='pasto'?[100,0]:tipo==='semi'?[70,30]:[40,60];
+
+  const items = [
+    {label:'MS por cabeça/dia', value:fmt(msDia,1), unit:' kg'},
+    {label:'MS total rebanho/dia', value:fmt(msTotalDia,0), unit:' kg', cls:'highlight'},
+    {label:'Volumoso/dia', value:fmt(msTotalDia*vd/100,0), unit:' kg'},
+    ...(cd>0?[{label:'Concentrado/dia', value:fmt(msTotalDia*cd/100,0), unit:' kg'}]:[]),
+    {label:'Total MS/mês (30 dias)', value:fmt(msTotalDia*30/1000,1), unit:' ton'}
+  ];
+  document.getElementById('racao-grid').innerHTML = makeGrid(items);
+  document.getElementById('racao-note').innerHTML = `<strong>📌 Atenção:</strong> Estimativas com ${pct}% PV. Ajuste conforme bromatologia e estágio produtivo.`;
+  setZap('zap-racao', `🥩 *Calculadora de Bolso – Ração*\n\nCabeças: ${cabecas} | Peso médio: ${peso} kg\nConsumo: ${pct}% PV | Sistema: ${tipo}\n\nMS/cabeça/dia: ${fmt(msDia,1)} kg\nMS total/dia: ${fmt(msTotalDia,0)} kg\nVolumoso/dia: ${fmt(msTotalDia*vd/100,0)} kg${cd>0?'\nConcentrado/dia: '+fmt(msTotalDia*cd/100,0)+' kg':''}\nTotal/mês: ${fmt(msTotalDia*30/1000,1)} ton\n\n_🌾 Calculadora de Bolso – Produtor Rural_`);
+  showResult('result-racao');
+  saveHistory('racao', `Ração – ${cabecas} cab.`, fmt(msTotalDia,0)+' kg MS/dia');
+}
+
+// ═══════════════════════════════════════
+//  SILAGEM
+// ═══════════════════════════════════════
+function calcularSilagem() {
+  if (!validate('silagem_cabecas','silagem_kg','silagem_dias')) return;
+  const cabecas=getVal('silagem_cabecas'), kgDia=getVal('silagem_kg'), dias=getVal('silagem_dias');
+  const tipo=document.getElementById('silagem_tipo').value;
+  const msPct = tipo==='milho'?30:tipo==='sorgo'?28:22;
+  const totalTon = cabecas * kgDia * dias / 1000;
+  const silos = Math.ceil(totalTon/300);
+  const caminhoes = Math.ceil(totalTon/14);
+
+  const items=[
+    {label:'Consumo diário total', value:fmt(cabecas*kgDia,0), unit:' kg'},
+    {label:`Total para ${dias} dias`, value:fmt(totalTon,1), unit:' toneladas', cls:'highlight'},
+    {label:`Matéria seca (${msPct}%)`, value:fmt(totalTon*msPct/100,1), unit:' ton MS'},
+    {label:'Silos trincheira (~300t)', value:fmt(silos,0), unit:' silos'},
+    {label:'Caminhões (~14t)', value:fmt(caminhoes,0), unit:' viagens'}
+  ];
+  document.getElementById('silagem-grid').innerHTML = makeGrid(items);
+  document.getElementById('silagem-note').innerHTML = `<strong>🌽 Silagem de ${tipo}:</strong> MS estimada em ${msPct}%. Colha no ponto certo, compacte bem e vede hermeticamente.`;
+  setZap('zap-silagem', `🌽 *Calculadora de Bolso – Silagem*\n\nCabeças: ${cabecas} | Consumo: ${kgDia} kg/cab/dia\nPeríodo: ${dias} dias | Tipo: ${tipo}\n\nTotal necessário: ${fmt(totalTon,1)} toneladas\nSilos trincheira: ${fmt(silos,0)}\nCaminhões: ${fmt(caminhoes,0)} viagens\n\n_🌾 Calculadora de Bolso – Produtor Rural_`);
+  showResult('result-silagem');
+  saveHistory('silagem', `Silagem ${tipo} – ${cabecas} cab.`, fmt(totalTon,1)+' ton');
+}
+
+// ═══════════════════════════════════════
+//  ROTAÇÃO
+// ═══════════════════════════════════════
+function calcularRotacao() {
+  if (!validate('rot_area','rot_cabecas','rot_peso')) return;
+  const area=getVal('rot_area'), cabecas=getVal('rot_cabecas'), peso=getVal('rot_peso');
+  const piquetes=getVal('rot_piquetes')||8, lotacao=getVal('rot_lotacao')||3;
+  const ua=cabecas*(peso/450);
+  const areaPiq=area/piquetes, lotAtual=ua/area;
+  const diasPiq=Math.round(piquetes>1?30/(piquetes-1):30);
+  const diasDesc=diasPiq*(piquetes-1);
+  const dif=lotacao*area-ua;
+
+  const items=[
+    {label:'UA total do rebanho', value:fmt(ua,1), unit:' UA'},
+    {label:'Lotação atual', value:fmt(lotAtual,1), unit:' UA/ha'},
+    {label:'Área por piquete', value:fmt(areaPiq,1), unit:' ha'},
+    {label:'Dias no piquete', value:fmt(diasPiq,0), unit:' dias', cls:'highlight'},
+    {label:'Descanso entre ocupações', value:fmt(diasDesc,0), unit:' dias'},
+    {label:dif>=0?'✅ Capacidade excedente':'⚠️ Superlotação', value:fmt(Math.abs(dif),1), unit:' UA', cls:dif>=0?'success':'danger'}
+  ];
+  document.getElementById('rotacao-grid').innerHTML = makeGrid(items);
+  document.getElementById('rotacao-note').innerHTML = dif<0
+    ? `<strong>⚠️ Superlotado em ${fmt(Math.abs(dif),1)} UA.</strong> Reduza o rebanho ou amplie a área.`
+    : `<strong>✅ Boa lotação!</strong> Capacidade excedente de ${fmt(dif,1)} UA.`;
+  setZap('zap-rotacao', `🔄 *Calculadora de Bolso – Rotação de Pasto*\n\nÁrea: ${area} ha | ${piquetes} piquetes\nRebanho: ${cabecas} cab. @ ${peso} kg\n\nUA total: ${fmt(ua,1)} | Lotação: ${fmt(lotAtual,1)} UA/ha\nÁrea/piquete: ${fmt(areaPiq,1)} ha\nDias no piquete: ${fmt(diasPiq,0)}\nDescanso: ${fmt(diasDesc,0)} dias\n${dif<0?'⚠️ SUPERLOTADO':'✅ Lotação adequada'}\n\n_🌾 Calculadora de Bolso – Produtor Rural_`);
+  showResult('result-rotacao');
+  saveHistory('rotacao', `Rotação – ${piquetes} piquetes`, fmt(diasDesc,0)+' dias descanso');
+}
+
+// ═══════════════════════════════════════
+//  CARCAÇA (live)
+// ═══════════════════════════════════════
+function calcularCarcacaAuto() {
+  const pv = getVal('carc_peso_vivo');
+  if (!pv || pv <= 0) { document.getElementById('carc-live').style.display='none'; return; }
+  const sel = document.getElementById('carc_rend');
+  const rend = sel.value==='custom' ? (getVal('carc_rend_custom')||52) : parseFloat(sel.value);
+  const precoAt = getVal('carc_preco_at');
+  const kgCarc = pv * rend / 100;
+  const at = kgCarc / 15;
+  const receita = precoAt > 0 ? at * precoAt : null;
+
+  document.getElementById('carc-at-val').textContent     = fmt(at,2);
+  document.getElementById('carc-kg-carc').textContent    = fmt(kgCarc,0)+' kg';
+  document.getElementById('carc-receita').textContent    = receita ? fmtR(receita) : '—';
+  document.getElementById('carc-rend-display').textContent = fmt(rend,1)+'%';
+
+  let nota = `<strong>🐄 Animal com ${pv} kg vivo:</strong> rende ${fmt(kgCarc,0)} kg de carcaça (${fmt(rend,1)}%) = <strong>${fmt(at,2)} arrobas</strong>.`;
+  if (receita) nota += ` Com @ a ${fmtR(precoAt)}, receita estimada: <strong>${fmtR(receita)}</strong>.`;
+  nota += ` Negocie o preço antes de embarcar.`;
+  document.getElementById('carc-note').innerHTML = nota;
+
+  setZap('zap-carcaca', `🔪 *Calculadora de Bolso – Carcaça*\n\nPeso vivo: ${pv} kg\nRendimento: ${fmt(rend,1)}%\n\nKg carcaça: ${fmt(kgCarc,0)} kg\nArrobas: ${fmt(at,2)} @${receita?'\nReceita estimada: '+fmtR(receita)+'\nPreço/@: '+fmtR(precoAt):''}\n\n_🌾 Calculadora de Bolso – Produtor Rural_`);
+
+  document.getElementById('carc-live').style.display = 'block';
+  saveHistory('carcaca', `Carcaça – ${pv} kg vivo`, fmt(at,2)+' @');
+}
+
+// ═══════════════════════════════════════
+//  ADUBAÇÃO
+// ═══════════════════════════════════════
+function atualizarDoseAdubo() {
+  const sel = document.getElementById('adub_tipo');
+  const dose = sel.options[sel.selectedIndex].dataset.dose;
+  if (dose) document.getElementById('adub_dose').value = dose;
+}
+
+function calcularAdubacao() {
+  if (!validate('adub_area','adub_dose')) return;
+  const area=getVal('adub_area'), dose=getVal('adub_dose');
+  const precoSaco=getVal('adub_preco_saco'), pesoSaco=getVal('adub_peso_saco')||50;
+  const totalKg=dose*area, sacos=Math.ceil(totalKg/pesoSaco);
+  const custo=precoSaco>0?sacos*precoSaco:null;
+  const tipoNome=document.getElementById('adub_tipo').options[document.getElementById('adub_tipo').selectedIndex].text;
+
+  const items=[
+    {label:'Dose por hectare', value:fmt(dose,0), unit:' kg/ha'},
+    {label:'Total necessário', value:fmt(totalKg,0), unit:' kg', cls:'highlight'},
+    {label:'Toneladas', value:fmt(totalKg/1000,2), unit:' ton'},
+    {label:`Sacos de ${pesoSaco} kg`, value:fmt(sacos,0), unit:' sacos'},
+    ...(custo?[{label:'Custo total',value:fmtR(custo),cls:'highlight'},{label:'Custo/ha',value:fmtR(custo/area)}]:[])
+  ];
+  document.getElementById('adubacao-grid').innerHTML = makeGrid(items);
+  document.getElementById('adubacao-note').innerHTML = `<strong>📌 Lembre-se:</strong> Baseie a adubação na análise de solo. Nutrição correta aumenta a produtividade em 20–40%.`;
+  setZap('zap-adubacao', `🧪 *Calculadora de Bolso – Adubação*\n\nAdubo: ${tipoNome}\nÁrea: ${area} ha | Dose: ${dose} kg/ha\n\nTotal: ${fmt(totalKg,0)} kg (${fmt(totalKg/1000,2)} ton)\nSacos de ${pesoSaco}kg: ${fmt(sacos,0)} sacos${custo?'\nCusto total: '+fmtR(custo)+'\nCusto/ha: '+fmtR(custo/area):''}\n\n_🌾 Calculadora de Bolso – Produtor Rural_`);
+  showResult('result-adubacao');
+  saveHistory('adubacao', `Adubação – ${area} ha`, fmt(sacos,0)+' sacos');
+}
+
+// ═══════════════════════════════════════
+//  DEFENSIVOS
+// ═══════════════════════════════════════
+function calcularDefensivos() {
+  if (!validate('def_area','def_dose','def_calda')) return;
+  const area=getVal('def_area'), dose=getVal('def_dose');
+  const un=document.getElementById('def_unidade').value;
+  const calda=getVal('def_calda'), preco=getVal('def_preco');
+  const equip=document.getElementById('def_equip').value;
+  const eqCap={costal:20,tratorizado:600,drone:100,aviao:3000};
+  const eqLbl={costal:'Costal 20L',tratorizado:'Tratorizado 600L',drone:'Drone 100L',aviao:'Avião 3.000L'};
+  const unL={ml:'mL',g:'g',L:'L',kg:'kg'};
+  const totalCalda=calda*area, totalProd=dose*area;
+  const reab=Math.ceil(totalCalda/eqCap[equip]);
+  const custo=preco>0?totalProd/1000*preco:null;
+
+  const items=[
+    {label:`Total produto (${unL[un]})`, value:fmt(totalProd,0), unit:` ${unL[un]}`},
+    {label:'Volume total de calda', value:fmt(totalCalda,0), unit:' litros', cls:'highlight'},
+    {label:`Abastecimentos ${eqLbl[equip]}`, value:fmt(reab,0), unit:' vezes'},
+    ...(custo?[{label:'Custo do produto',value:fmtR(custo),cls:'highlight'},{label:'Custo/ha',value:fmtR(custo/area)}]:[])
+  ];
+  document.getElementById('defensivos-grid').innerHTML = makeGrid(items);
+  document.getElementById('defensivos-note').innerHTML = `<strong>⚠️ Segurança:</strong> Use sempre EPI. Respeite a carência e o intervalo de segurança da bula. Guarde as notas fiscais.`;
+  setZap('zap-defensivos', `🛡️ *Calculadora de Bolso – Defensivos*\n\nÁrea: ${area} ha | Dose: ${dose} ${unL[un]}/ha\nCalda: ${calda} L/ha | Equip.: ${eqLbl[equip]}\n\nProduto total: ${fmt(totalProd,0)} ${unL[un]}\nVolume calda: ${fmt(totalCalda,0)} L\nAbastecimentos: ${fmt(reab,0)} vezes${custo?'\nCusto: '+fmtR(custo)+' | R$/ha: '+fmtR(custo/area):''}\n\n_🌾 Calculadora de Bolso – Produtor Rural_`);
+  showResult('result-defensivos');
+  saveHistory('defensivos', `Defensivos – ${area} ha`, fmt(totalProd,0)+' '+unL[un]);
+}
+
+// ═══════════════════════════════════════
+//  PRECIFICAÇÃO
+// ═══════════════════════════════════════
+function atualizarUnidadeProd() {
+  const sel=document.getElementById('prod_tipo');
+  const un=sel.options[sel.selectedIndex].dataset.unidade||'unid.';
+  document.getElementById('prod_prod_label').textContent=`Produtividade (${un}/ha)`;
+  document.getElementById('prod_preco_label').textContent=`Preço de Venda (R$ por ${un})`;
+}
+
+function calcularPreco() {
+  if (!validate('prod_area','prod_produtividade','prod_preco_venda')) return;
+  const area=getVal('prod_area'), prod=getVal('prod_produtividade'), pv=getVal('prod_preco_venda');
+  const ctHa=getVal('custo_sementes')+getVal('custo_fertilizantes')+getVal('custo_defensivos_p')+getVal('custo_mao_obra')+getVal('custo_maquinas')+getVal('custo_arrendamento')+getVal('custo_frete')+getVal('custo_outros');
+  const ct=ctHa*area, producao=prod*area, receita=producao*pv, lucro=receita-ct;
+  const margem=receita>0?lucro/receita*100:0, roi=ct>0?lucro/ct*100:0;
+  const cuUn=producao>0?ct/producao:0;
+  const sel=document.getElementById('prod_tipo');
+  const un=sel.options[sel.selectedIndex].dataset.unidade||'unid.';
+
+  const items=[
+    {label:'Custo total', value:fmtR(ct)},
+    {label:'Custo/hectare', value:fmtR(ctHa)},
+    {label:`Custo por ${un}`, value:fmtR(cuUn)},
+    {label:'Preço de equilíbrio', value:fmtR(cuUn), cls:'highlight'},
+    {label:`Produção total (${un}s)`, value:fmt(producao,0)},
+    {label:'Receita bruta', value:fmtR(receita)},
+    {label:lucro>=0?'✅ LUCRO LÍQUIDO':'❌ PREJUÍZO', value:fmtR(Math.abs(lucro)), cls:lucro>=0?'success':'danger'},
+    {label:'ROI', value:fmt(roi,1)+'%', cls:lucro>=0?'success':'danger'}
+  ];
+  document.getElementById('preco-grid').innerHTML = makeGrid(items);
+  const cls=lucro>0?'positive':lucro<0?'negative':'neutral';
+  document.getElementById('margin-meter').innerHTML=`<div class="meter-value ${cls}">${fmt(Math.abs(margem),1)}%</div><div class="meter-label">${lucro>0?'▲ Margem de Lucro':lucro<0?'▼ Margem de Perda':'= Equilíbrio'}</div>`;
+  document.getElementById('preco-note').innerHTML=lucro>0
+    ?`<strong>✅ Negócio lucrativo!</strong> Para cada R$1 investido, retorno de R$${fmt(roi/100,2)}. Equilíbrio: ${fmtR(cuUn)}/${un}.`
+    :`<strong>⚠️ Operação com prejuízo!</strong> Precisa vender a ${fmtR(cuUn)}/${un} para cobrir custos.`;
+  setZap('zap-preco', `💰 *Calculadora de Bolso – Simulação de Preços*\n\nProduto: ${sel.options[sel.selectedIndex].text}\nÁrea: ${area} ha | Produtividade: ${prod} ${un}/ha\nPreço venda: ${fmtR(pv)}/${un}\n\nCusto total: ${fmtR(ct)}\nReceita bruta: ${fmtR(receita)}\n${lucro>=0?'Lucro: '+fmtR(lucro):'Prejuízo: '+fmtR(Math.abs(lucro))}\nMargem: ${fmt(Math.abs(margem),1)}% | ROI: ${fmt(roi,1)}%\nEquilíbrio: ${fmtR(cuUn)}/${un}\n\n_🌾 Calculadora de Bolso – Produtor Rural_`);
+  showResult('result-preco');
+  saveHistory('preco', `${sel.options[sel.selectedIndex].text} – ${area} ha`, lucro>=0?fmtR(lucro):'⚠️ '+fmtR(Math.abs(lucro)));
+}
+
+// ═══════════════════════════════════════
+//  CONVERSOR DE MEDIDAS
+// ═══════════════════════════════════════
+const UNIDADES = {
+  ha:      { label:'Hectare',            abbr:'ha',    m2:10000,    region:'INCRA / Nacional' },
+  m2:      { label:'Metro Quadrado',     abbr:'m²',    m2:1,        region:'Universal' },
+  alq_sp:  { label:'Alqueire Paulista',  abbr:'alq.',  m2:24200,    region:'SP / PR / RS' },
+  alq_mg:  { label:'Alqueire Mineiro',   abbr:'alq.',  m2:48400,    region:'MG / GO / MT' },
+  tarefa:  { label:'Tarefa',             abbr:'tar.',  m2:4356,     region:'BA / SE / AL' },
+  acre:    { label:'Acre',               abbr:'ac',    m2:4046.86,  region:'AM / PA / AC' },
+  braca:   { label:'Braça Quadrada',     abbr:'br²',   m2:4.84,     region:'Uso antigo' },
+};
+
+function converterMedidas() {
+  const val    = parseFloat(document.getElementById('conv_valor').value);
+  const origem = document.getElementById('conv_origem').value;
+  const info   = UNIDADES[origem];
+  const results= document.getElementById('conv-results');
+  const hint   = document.getElementById('conv-tap-hint');
+  document.getElementById('conv-origin-label').textContent = `Convertendo de: ${info.label} (${info.region})`;
+
+  if (!val || val <= 0 || isNaN(val)) {
+    results.innerHTML = '<div style="text-align:center;padding:20px;color:var(--barro);font-size:12px;opacity:0.7">🗺️ Digite um valor para converter entre todas as unidades</div>';
+    hint.style.display = 'none';
+    return;
+  }
+
+  const m2Total = val * info.m2;
+  hint.style.display = 'block';
+
+  results.innerHTML = Object.entries(UNIDADES).map(([key, u]) => {
+    const conv = m2Total / u.m2;
+    const isOrigin = key === origem;
+    const disp = conv < 0.001 ? conv.toExponential(2) : fmt(conv, conv < 10 ? 4 : 2);
+    const m2label = m2Total >= 10000 ? fmt(m2Total/10000,2)+' ha' : fmt(m2Total,0)+' m²';
+    return `<div class="conv-item ${isOrigin?'origin':''}" onclick="${isOrigin?'':  `setConvOrigem('${key}',${conv})`}">
+      <div>
+        <div class="conv-name" style="${isOrigin?'color:var(--palha)':'color:var(--terra)'}">${u.label} ${isOrigin?'✓':''}</div>
+        <div class="conv-abbr" style="${isOrigin?'color:rgba(245,240,232,0.5)':'color:var(--barro)'}">${u.abbr} · ${u.region}</div>
+      </div>
+      <div>
+        <div class="conv-value" style="${isOrigin?'color:var(--palha)':''}">${disp}</div>
+        <div class="conv-m2" style="${isOrigin?'color:rgba(245,240,232,0.4)':''}">${m2label}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setConvOrigem(key, novoVal) {
+  document.getElementById('conv_origem').value = key;
+  document.getElementById('conv_valor').value  = novoVal < 10 ? novoVal.toFixed(4) : Math.round(novoVal*100)/100;
+  converterMedidas();
+  document.getElementById('conv_valor').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+atualizarUnidadeProd();
+renderHistory();
+renderPluv();
+</script>
+</body>
+</html>
